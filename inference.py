@@ -29,7 +29,7 @@ from openai import OpenAI
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-API_BASE_URL: str = os.getenv("API_BASE_URL", "https://api-inference.huggingface.co/v1")
+API_BASE_URL: str = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
 MODEL_NAME: str = os.getenv("MODEL_NAME", "meta-llama/Llama-3.1-8B-Instruct")
 HF_TOKEN: str = os.getenv("HF_TOKEN", os.getenv("OPENAI_API_KEY", ""))
 LOCAL_IMAGE_NAME: str = os.getenv("LOCAL_IMAGE_NAME", "customer-support-env")
