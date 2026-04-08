@@ -192,15 +192,26 @@ curl -X POST http://localhost:7860/step/<session_id> \
 ## Baseline Script
 
 ```bash
-export API_BASE_URL="https://api.openai.com/v1"
-export MODEL_NAME="gpt-4o-mini"
-export HF_TOKEN="sk-..."
+export API_BASE_URL="https://router.huggingface.co/v1"
+export MODEL_NAME="meta-llama/Llama-3.1-8B-Instruct"
+export HF_TOKEN="your-hf-token"
 export ENV_BASE_URL="http://localhost:7860"
 
 python inference.py
 ```
 
-The baseline script still works with the v2 environment and can choose whether to spend steps on clarification.
+The baseline script works with any OpenAI-compatible API endpoint. Set `API_BASE_URL` and `MODEL_NAME` to match your inference provider.
+
+## Baseline Scores
+
+Evaluated with `meta-llama/Llama-3.1-8B-Instruct` via `https://router.huggingface.co/v1`, seed=42:
+
+| Task | Score | Success | Steps |
+|------|-------|---------|-------|
+| classify | 1.00 | true | 1 |
+| route | 1.00 | true | 1 |
+| respond | 1.00 | true | 1 |
+| **AVERAGE** | **1.00** | | |
 
 ## Project Structure
 
