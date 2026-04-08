@@ -1,0 +1,156 @@
+name: customer-support-env-v2
+version: "2.0.0"
+description: >
+  An interactive OpenEnv environment for customer support ticket management.
+  Agents must classify tickets, route them with the right urgency and owner,
+  and draft customer-facing replies that are helpful, empathetic, and realistic.
+  The environment includes meaningful clarification steps and deterministic
+  graders that reward useful support behavior while penalizing overpromising.
+
+author: "OpenEnv Submission"
+
+tags:
+  - customer-support
+  - agentic-evaluation
+  - routing
+  - text-generation
+  - openenv
+
+tasks:
+  - name: classify
+    description: >
+      Classify an incoming customer support ticket into billing, technical,
+      account, or general. Agents may optionally ask for a clarification hint
+      before submitting. Graded by exact category match with partial credit for
+      adjacent categories.
+    difficulty: easy
+    max_steps: 3
+    reward_range: [0.0, 1.0]
+
+  - name: route
+    description: >
+      Route a ticket by selecting category, priority, and responsible team.
+      Agents may use clarification to reveal an internal triage hint before
+      submitting. Graded across all three dimensions with partial credit for
+      adjacent priority.
+    difficulty: medium
+    max_steps: 5
+    reward_range: [0.0, 1.0]
+
+  - name: respond
+    description: >
+      Draft a professional and operationally realistic support response.
+      Agents may use clarification to reveal an internal support note. Graded
+      deterministically for issue acknowledgment, empathy, actionability,
+      structure, and appropriate length, with penalties for unrealistic claims.
+    difficulty: hard
+    max_steps: 5
+    reward_range: [0.0, 1.0]
+
+observation_space:
+  type: object
+  description: Current ticket and episode state visible to the agent
+  fields:
+    ticket:
+      type: object
+      description: Full customer support ticket
+      fields:
+        ticket_id:
+          type: string
+        subject:
+          type: string
+        body:
+          type: string
+        customer_name:
+          type: string
+        account_type:
+          type: string
+          enum: [free, pro, enterprise]
+        created_at:
+          type: string
+          format: datetime
+        previous_tickets:
+          type: array
+    task_name:
+      type: string
+      description: Active task identifier
+    task_description:
+      type: string
+      description: Natural-language task instructions
+    available_action_types:
+      type: array
+      description: Valid action types for the current task
+    step_count:
+      type: integer
+      description: Number of steps taken so far
+    max_steps:
+      type: integer
+      description: Maximum steps before the episode ends
+    feedback:
+      type: string
+      nullable: true
+      description: Clarification content or grading feedback from the previous step
+    cumulative_reward:
+      type: number
+      description: Sum of rewards received in the episode
+
+action_space:
+  type: object
+  description: Agent action submitted to the environment
+  fields:
+    action_type:
+      type: string
+      enum: [submit, ask_clarification]
+      required: true
+    category:
+      type: string
+      enum: [billing, technical, account, general]
+      required_for: [classify, route]
+    priority:
+      type: string
+      enum: [low, medium, high, critical]
+      required_for: [route]
+    team:
+      type: string
+      enum: [billing_team, technical_team, account_team, customer_success]
+      required_for: [route]
+    response_text:
+      type: string
+      required_for: [respond]
+    reasoning:
+      type: string
+      description: Optional reasoning trace
+
+reward:
+  type: float
+  range: [0.0, 1.0]
+  description: >
+    Step reward is always in [0.0, 1.0].
+    classify: 1.0 exact match, 0.3 adjacent category, 0.0 wrong.
+    route: weighted 0.30 category + 0.40 priority + 0.30 team.
+    respond: weighted deterministic rubric across name usage, issue acknowledgment,
+    realistic resolution, empathy, actionability, and length, with penalties for
+    unrealistic guarantees. A step penalty of 0.03 applies for each extra step
+    before submission.
+
+api:
+  reset:
+    method: POST
+    path: /reset
+    body: {task_name: string, seed: integer}
+    response: {session_id: string, observation: Observation}
+  step:
+    method: POST
+    path: /step/{session_id}
+    body: Action
+    response: {observation: Observation, reward: float, done: bool, info: object}
+  state:
+    method: GET
+    path: /state/{session_id}
+    response: object
+  health:
+    method: GET
+    path: /health
+  tasks:
+    method: GET
+    path: /tasks
