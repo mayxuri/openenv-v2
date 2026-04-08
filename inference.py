@@ -36,7 +36,7 @@ LOCAL_IMAGE_NAME: str = os.getenv("LOCAL_IMAGE_NAME", "customer-support-env")
 ENV_BASE_URL: str = os.getenv("ENV_BASE_URL", "http://localhost:7860")
 
 BENCHMARK = "customer-support-openenv"
-TASKS = ["classify", "route", "respond"]
+TASKS = ["classify", "route", "respond", "de-escalate"]
 SEED = 42
 ENV_READY_TIMEOUT = 60  # seconds
 
@@ -139,6 +139,29 @@ SYSTEM_PROMPTS = {
         "  action_type: 'submit'\n"
         "  response_text: your full response (plain text, no markdown)\n"
         "  reasoning: one-line explanation of your approach\n"
+        "Output ONLY valid JSON."
+    ),
+    "de-escalate": (
+        "You are a senior customer support specialist handling an upset customer.\n"
+        "Your two jobs:\n"
+        "  1. Choose the RIGHT compensation_decision based on anger level and issue severity:\n"
+        "       none               - minor issue, no remedy needed\n"
+        "       credit             - moderate frustration, goodwill gesture\n"
+        "       refund             - confirmed billing error or serious service failure\n"
+        "       escalate_to_manager - customer demands human escalation, or situation is severe\n"
+        "  WARNING: Do NOT over-compensate. Offering a refund for a minor complaint is penalised.\n"
+        "  WARNING: Do NOT under-compensate. Ignoring a serious complaint is also penalised.\n\n"
+        "  2. Write an empathetic, de-escalating response that:\n"
+        "       • Addresses the customer by first name\n"
+        "       • Sincerely acknowledges their frustration (no hollow platitudes)\n"
+        "       • States exactly what you are doing to help\n"
+        "       • Avoids guarantees you cannot keep\n"
+        "       • Is 80–400 words\n\n"
+        "Respond with a JSON object containing:\n"
+        "  action_type: 'submit'\n"
+        "  compensation_decision: one of none | credit | refund | escalate_to_manager\n"
+        "  response_text: your full response (plain text, no markdown)\n"
+        "  reasoning: brief explanation of your compensation choice\n"
         "Output ONLY valid JSON."
     ),
 }

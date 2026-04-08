@@ -46,7 +46,11 @@ class Action(BaseModel):
     )
     response_text: Optional[str] = Field(
         None,
-        description="Full drafted response to send to the customer (task: respond)",
+        description="Full drafted response to send to the customer (task: respond, de-escalate)",
+    )
+    compensation_decision: Optional[str] = Field(
+        None,
+        description="Compensation decision: none | credit | refund | escalate_to_manager (task: de-escalate)",
     )
     reasoning: Optional[str] = Field(
         None,

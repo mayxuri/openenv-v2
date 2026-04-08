@@ -46,6 +46,7 @@ This benchmark is intended to test whether an agent can:
 | `classify` | Easy | 3 | Classify a ticket as billing, technical, account, or general |
 | `route` | Medium | 5 | Choose category, priority, and responsible team |
 | `respond` | Hard | 5 | Draft a professional support reply with realistic next steps |
+| `de-escalate` | Expert | 5 | Handle an angry customer — choose the right compensation AND de-escalate |
 
 ### `classify`
 
@@ -72,6 +73,26 @@ Priority gets partial credit when the answer is off by one level.
 ### `respond`
 
 Goal: write a customer-facing reply that is empathetic, grounded, and operationally realistic.
+
+### `de-escalate`
+
+Goal: handle an angry customer by choosing the right compensation level AND drafting an empathetic response.
+
+Compensation options:
+- `none` — minor issue, no remedy warranted
+- `credit` — moderate frustration, goodwill gesture appropriate
+- `refund` — confirmed billing error or significant service failure
+- `escalate_to_manager` — severe situation or customer demands human escalation
+
+Reward weights:
+- compensation decision: `0.40` (partial credit for being one level off)
+- empathetic response quality: `0.60`
+
+Additional scoring behavior:
+- penalty for over-compensating (offering refunds for minor complaints)
+- penalty for under-compensating (ignoring serious complaints)
+- penalty for hollow guarantees or dismissive language
+- bonus for genuine de-escalation phrases
 
 Deterministic rubric:
 
@@ -211,7 +232,8 @@ Evaluated with `meta-llama/Llama-3.1-8B-Instruct` via `https://router.huggingfac
 | classify | 1.00 | true | 1 |
 | route | 1.00 | true | 1 |
 | respond | 1.00 | true | 1 |
-| **AVERAGE** | **1.00** | | |
+| de-escalate | 0.78 | true | 1 |
+| **AVERAGE** | **0.95** | | |
 
 ## Project Structure
 

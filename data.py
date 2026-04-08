@@ -509,6 +509,172 @@ TASK3_TICKETS = [
 ]
 
 
+TASK4_TICKETS = [
+    {
+        "ticket_id": "T301",
+        "subject": "YOU CHARGED ME TWICE AND I WANT MY MONEY BACK NOW",
+        "body": (
+            "I am absolutely furious. Your system charged my card $149 TWICE this month. "
+            "I've been a loyal customer for 3 years and this is how you treat me? "
+            "I have screenshots and bank statements. If this isn't fixed TODAY I am disputing "
+            "the charge, leaving a 1-star review on every platform, and cancelling forever. "
+            "This is completely unacceptable."
+        ),
+        "customer_name": "Marcus Webb",
+        "account_type": "pro",
+        "created_at": "2024-01-15T09:00:00Z",
+        "previous_tickets": [
+            {"ticket_id": "T290", "subject": "Billing question", "resolved": True}
+        ],
+        "clarifications": [
+            "Billing audit: duplicate charge confirmed — two captures posted for the same invoice on Jan 10.",
+            "Account note: customer has been active for 3 years with no prior disputes.",
+        ],
+        "anger_level": "high",
+        "answer": {
+            "compensation_decision": "refund",
+            "must_include_words": ["marcus", "apologize"],
+            "issue_keywords": ["duplicate", "charge", "charged twice"],
+            "resolution_phrases": ["refund", "process", "business days", "investigate"],
+            "action_phrases": ["refund", "process", "confirm", "team"],
+            "empathy_phrases": ["understand", "sorry", "apologize", "frustrating"],
+            "forbidden_phrases": ["you are wrong", "was not our fault", "cannot refund"],
+            "over_compensation_phrases": ["free year", "lifetime discount", "full account credit forever"],
+            "min_words": 80,
+            "max_words": 500,
+        },
+    },
+    {
+        "ticket_id": "T302",
+        "subject": "Mildly annoyed - dashboard was slow yesterday",
+        "body": (
+            "Hey, just wanted to flag that the dashboard was noticeably slow yesterday afternoon, "
+            "maybe 5-10 seconds to load. It seems fine now. Not a big deal but thought you should know. "
+            "Keep up the good work otherwise!"
+        ),
+        "customer_name": "Priya Shah",
+        "account_type": "free",
+        "created_at": "2024-01-15T10:00:00Z",
+        "previous_tickets": [],
+        "clarifications": [
+            "Performance note: elevated dashboard latency was observed between 2-4 PM UTC yesterday.",
+            "Status note: issue resolved itself after a routing fix was deployed.",
+        ],
+        "anger_level": "low",
+        "answer": {
+            "compensation_decision": "none",
+            "must_include_words": ["priya"],
+            "issue_keywords": ["slow", "dashboard", "latency"],
+            "resolution_phrases": ["resolved", "fixed", "investigating", "monitor"],
+            "action_phrases": ["monitor", "update", "notify", "watch"],
+            "empathy_phrases": ["thank you", "appreciate", "sorry"],
+            "forbidden_phrases": [],
+            "over_compensation_phrases": ["refund", "credit", "free month", "compensation"],
+            "min_words": 40,
+            "max_words": 300,
+        },
+    },
+    {
+        "ticket_id": "T303",
+        "subject": "Platform down during our $2M client presentation - someone needs to answer for this",
+        "body": (
+            "Your platform went down for 90 minutes yesterday during our biggest client presentation of the year. "
+            "We lost the deal. I've been escalating for hours and no one has called me back. "
+            "I need to speak to a senior manager immediately. This is a catastrophic failure on your part "
+            "and I expect a serious response — not a template email."
+        ),
+        "customer_name": "Jonathan Reed",
+        "account_type": "enterprise",
+        "created_at": "2024-01-15T16:00:00Z",
+        "previous_tickets": [
+            {"ticket_id": "T298", "subject": "Outage complaint", "resolved": False}
+        ],
+        "clarifications": [
+            "Incident log: confirmed 92-minute outage affecting enterprise tenants in EU-West region.",
+            "Account note: customer has been escalating unresolved for 6+ hours — executive escalation warranted.",
+        ],
+        "anger_level": "critical",
+        "answer": {
+            "compensation_decision": "escalate_to_manager",
+            "must_include_words": ["jonathan", "apologize"],
+            "issue_keywords": ["outage", "down", "presentation"],
+            "resolution_phrases": ["manager", "escalate", "call", "senior", "executive"],
+            "action_phrases": ["escalate", "contact", "call back", "arrange"],
+            "empathy_phrases": ["understand", "sorry", "sincerely apologize", "unacceptable"],
+            "forbidden_phrases": ["was not our fault", "cannot escalate", "follow our normal process"],
+            "over_compensation_phrases": [],
+            "min_words": 80,
+            "max_words": 500,
+        },
+    },
+    {
+        "ticket_id": "T304",
+        "subject": "Disappointed - feature I rely on was removed without notice",
+        "body": (
+            "I just discovered that the CSV bulk import feature I use every week has been removed. "
+            "There was no announcement or warning. I had to redo hours of work manually today. "
+            "I'm not looking for a fight but I am genuinely disappointed — this affects my daily workflow. "
+            "Can you offer anything to make this right?"
+        ),
+        "customer_name": "Diana Fong",
+        "account_type": "pro",
+        "created_at": "2024-01-16T11:00:00Z",
+        "previous_tickets": [],
+        "clarifications": [
+            "Product note: bulk CSV import was deprecated in the last release; a migration guide exists.",
+            "Customer success note: a one-month credit is within support discretion for disruption cases.",
+        ],
+        "anger_level": "medium",
+        "answer": {
+            "compensation_decision": "credit",
+            "must_include_words": ["diana", "apologize"],
+            "issue_keywords": ["csv", "import", "removed", "feature"],
+            "resolution_phrases": ["credit", "alternative", "guide", "migration", "workaround"],
+            "action_phrases": ["credit", "send", "provide", "share"],
+            "empathy_phrases": ["understand", "sorry", "apologize", "disappointed"],
+            "forbidden_phrases": ["you should have known", "was announced"],
+            "over_compensation_phrases": ["full refund", "free year", "cancel your bill"],
+            "min_words": 80,
+            "max_words": 450,
+        },
+    },
+    {
+        "ticket_id": "T305",
+        "subject": "This is ridiculous - locked out AGAIN",
+        "body": (
+            "This is the THIRD time this month I've been locked out of my account. "
+            "Every time I contact support you reset it and it works for a few days, then it breaks again. "
+            "I'm fed up. I pay for a Pro plan and expect it to actually work. "
+            "What are you going to do to actually FIX this permanently?"
+        ),
+        "customer_name": "Carlos Mendez",
+        "account_type": "pro",
+        "created_at": "2024-01-16T14:00:00Z",
+        "previous_tickets": [
+            {"ticket_id": "T280", "subject": "Locked out of account", "resolved": True},
+            {"ticket_id": "T291", "subject": "Account access issue", "resolved": True},
+        ],
+        "clarifications": [
+            "Engineering note: a known bug causes session token expiry for a subset of Pro accounts under investigation.",
+            "Policy note: recurring issue warrants a proactive credit and escalation to engineering.",
+        ],
+        "anger_level": "high",
+        "answer": {
+            "compensation_decision": "credit",
+            "must_include_words": ["carlos", "apologize"],
+            "issue_keywords": ["locked out", "account", "recurring"],
+            "resolution_phrases": ["engineering", "investigate", "root cause", "credit", "monitor"],
+            "action_phrases": ["escalate", "investigate", "credit", "follow up"],
+            "empathy_phrases": ["understand", "sorry", "apologize", "frustrating"],
+            "forbidden_phrases": ["just reset your password", "try again later"],
+            "over_compensation_phrases": ["full refund", "cancel your subscription for free"],
+            "min_words": 80,
+            "max_words": 500,
+        },
+    },
+]
+
+
 def get_ticket_for_task(task_name: str, seed: int = 42) -> dict:
     """Return a single deterministic ticket for a task based on seed."""
     if task_name == "classify":
@@ -517,6 +683,8 @@ def get_ticket_for_task(task_name: str, seed: int = 42) -> dict:
         pool = TASK2_TICKETS
     elif task_name == "respond":
         pool = TASK3_TICKETS
+    elif task_name == "de-escalate":
+        pool = TASK4_TICKETS
     else:
-        raise ValueError(f"Unknown task: {task_name}. Choose: classify | route | respond")
+        raise ValueError(f"Unknown task: {task_name}. Choose: classify | route | respond | de-escalate")
     return pool[seed % len(pool)]

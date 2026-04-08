@@ -13,7 +13,7 @@ from typing import Optional, Tuple, Dict, Any, List
 
 from models import Observation, Action, TicketInfo
 from data import get_ticket_for_task
-from graders import grade_classify, grade_route, grade_respond
+from graders import grade_classify, grade_route, grade_respond, grade_deescalate
 
 
 TASK_CONFIGS: Dict[str, Dict[str, Any]] = {
@@ -65,6 +65,28 @@ TASK_CONFIGS: Dict[str, Dict[str, Any]] = {
             "Submit with action_type='submit' and the 'response_text' field set."
         ),
         "difficulty": "hard",
+        "max_steps": 5,
+        "available_action_types": ["submit", "ask_clarification"],
+    },
+    "de-escalate": {
+        "description": (
+            "Handle an angry or frustrated customer. You must:\n"
+            "  1. Choose the right compensation_decision:\n"
+            "       none               - issue is minor or resolved; no remedy warranted\n"
+            "       credit             - moderate frustration; offer a goodwill account credit\n"
+            "       refund             - confirmed billing error or significant service failure\n"
+            "       escalate_to_manager - customer demands human escalation or situation is severe\n"
+            "  2. Draft an empathetic response that:\n"
+            "       - Addresses the customer by name\n"
+            "       - Sincerely acknowledges their frustration\n"
+            "       - Matches the compensation to the severity of the situation\n"
+            "       - Avoids hollow guarantees or dismissive language\n"
+            "       - Does NOT over-compensate for minor issues\n"
+            "  Scoring penalizes both under-responding AND over-compensating.\n"
+            "You may use ask_clarification to reveal an internal note before deciding.\n"
+            "Submit with action_type='submit', compensation_decision, and response_text set."
+        ),
+        "difficulty": "expert",
         "max_steps": 5,
         "available_action_types": ["submit", "ask_clarification"],
     },
@@ -166,6 +188,12 @@ class CustomerSupportEnv:
                 raw_reward, info = grade_route(action_dict, self._current_answer)
             elif self.task_name == "respond":
                 raw_reward, info = grade_respond(
+                    action_dict,
+                    self._current_answer,
+                    self._ticket_raw,
+                )
+            elif self.task_name == "de-escalate":
+                raw_reward, info = grade_deescalate(
                     action_dict,
                     self._current_answer,
                     self._ticket_raw,

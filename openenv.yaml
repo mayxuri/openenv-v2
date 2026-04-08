@@ -47,6 +47,18 @@ tasks:
     max_steps: 5
     reward_range: [0.0, 1.0]
 
+  - name: de-escalate
+    description: >
+      Handle an angry or upset customer. The agent must choose a compensation
+      decision (none | credit | refund | escalate_to_manager) calibrated to the
+      anger level and issue severity, then draft an empathetic de-escalation
+      response. The grader penalises both under-compensation (ignoring serious
+      complaints) and over-compensation (giving refunds for minor issues),
+      making calibrated judgment the key skill under test.
+    difficulty: expert
+    max_steps: 5
+    reward_range: [0.0, 1.0]
+
 observation_space:
   type: object
   description: Current ticket and episode state visible to the agent
@@ -116,7 +128,11 @@ action_space:
       required_for: [route]
     response_text:
       type: string
-      required_for: [respond]
+      required_for: [respond, de-escalate]
+    compensation_decision:
+      type: string
+      enum: [none, credit, refund, escalate_to_manager]
+      required_for: [de-escalate]
     reasoning:
       type: string
       description: Optional reasoning trace

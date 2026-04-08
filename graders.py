@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import Dict, Any, Tuple, Iterable
 
 PRIORITY_LEVELS = ["low", "medium", "high", "critical"]
+COMPENSATION_LEVELS = ["none", "credit", "refund", "escalate_to_manager"]
 
 
 def _count_hits(candidates: Iterable[str], text: str) -> int:
@@ -191,4 +192,128 @@ def grade_respond(
         "penalty": penalty,
         "word_count": word_count,
         "sentence_count": sentence_count,
+    }
+
+
+def grade_deescalate(
+    action: Dict[str, Any],
+    answer: Dict[str, Any],
+    ticket: Dict[str, Any],
+) -> Tuple[float, Dict[str, Any]]:
+    """
+    Task 4 - De-escalate: handle an angry customer.
+
+    The agent must:
+      1. Choose the right compensation level  (40%)
+      2. Write an empathetic de-escalation response  (60%)
+
+    Compensation scoring (40%):
+      - Exact match: 1.0
+      - Off by one level: 0.5
+      - Off by two levels: 0.1
+      - Off by three or more: 0.0
+
+    Over-compensation penalty: -0.15 if forbidden phrases appear or
+    the agent gives a higher-cost remedy than warranted for a low-anger ticket.
+
+    Response scoring (60%): same rubric as grade_respond.
+    """
+    response_text = (action.get("response_text") or "").strip()
+    response_lower = response_text.lower()
+    submitted_comp = (action.get("compensation_decision") or "none").lower().strip()
+    correct_comp = answer["compensation_decision"]
+
+    breakdown: Dict[str, float] = {}
+
+    # ── Compensation decision (40%) ──────────────────────────────────────────
+    if submitted_comp not in COMPENSATION_LEVELS:
+        submitted_comp = "none"
+
+    sub_idx = COMPENSATION_LEVELS.index(submitted_comp)
+    cor_idx = COMPENSATION_LEVELS.index(correct_comp)
+    diff = abs(sub_idx - cor_idx)
+
+    if diff == 0:
+        comp_score = 1.0
+    elif diff == 1:
+        comp_score = 0.5
+    elif diff == 2:
+        comp_score = 0.1
+    else:
+        comp_score = 0.0
+
+    # Penalty for over-compensating on low-anger tickets
+    over_comp_phrases = answer.get("over_compensation_phrases", [])
+    over_comp_hits = _count_hits(over_comp_phrases, response_lower)
+    over_comp_penalty = round(min(0.20, over_comp_hits * 0.10), 4)
+
+    breakdown["compensation_decision"] = round(0.40 * comp_score - over_comp_penalty, 4)
+
+    # ── Response quality (60%) ───────────────────────────────────────────────
+    if not response_text:
+        breakdown["response_quality"] = 0.0
+        total = max(0.0, min(1.0, breakdown["compensation_decision"]))
+        return total, {"total_reward": total, "breakdown": breakdown, "error": "No response_text"}
+
+    customer_words = ticket["customer_name"].lower().split()
+    name_hit = any(word in response_lower for word in customer_words)
+    breakdown["name_mentioned"] = 0.10 if name_hit else 0.0
+
+    issue_terms = list(answer.get("issue_keywords", [])) + list(answer.get("must_include_words", []))
+    issue_hits = _count_hits(issue_terms, response_lower)
+    breakdown["issue_acknowledged"] = round(0.12 * min(1.0, issue_hits / max(1, len(issue_terms))), 4)
+
+    empathy_phrases = answer.get("empathy_phrases", [])
+    empathy_hits = _count_hits(empathy_phrases, response_lower)
+    deescalation_bonus = 1.0 if any(p in response_lower for p in ["sincerely apologize", "deeply sorry", "truly sorry"]) else 0.5
+    breakdown["empathetic_tone"] = round(
+        0.18 * min(1.0, max(empathy_hits / max(1, len(empathy_phrases)), deescalation_bonus)),
+        4,
+    )
+
+    resolution_phrases = answer.get("resolution_phrases", [])
+    resolution_hits = _count_hits(resolution_phrases, response_lower)
+    breakdown["resolution_provided"] = round(
+        0.12 * min(1.0, resolution_hits / max(1, len(resolution_phrases) * 0.6)),
+        4,
+    )
+
+    action_phrases = answer.get("action_phrases", [])
+    action_hits = _count_hits(action_phrases, response_lower)
+    breakdown["concrete_next_steps"] = round(
+        0.08 * min(1.0, action_hits / max(1, len(action_phrases))),
+        4,
+    )
+
+    word_count = len(response_text.split())
+    min_w = answer.get("min_words", 60)
+    max_w = answer.get("max_words", 500)
+    if min_w <= word_count <= max_w:
+        length_score = 0.08
+    elif word_count < min_w:
+        length_score = round(0.08 * (word_count / min_w), 4)
+    else:
+        length_score = round(0.08 * max(0.0, 1.0 - (word_count - max_w) / max_w), 4)
+    breakdown["length_appropriate"] = length_score
+
+    # Penalty for making promises that can't be kept
+    forbidden_hits = _count_hits(answer.get("forbidden_phrases", []), response_lower)
+    guarantee_hits = _count_hits(
+        ["guarantee", "definitely fixed", "resolved now", "certainly", "absolutely fixed"],
+        response_lower,
+    )
+    penalty = round(min(0.25, forbidden_hits * 0.10 + guarantee_hits * 0.05), 4)
+
+    total = round(sum(breakdown.values()) - penalty, 4)
+    total = min(1.0, max(0.0, total))
+
+    return total, {
+        "total_reward": total,
+        "breakdown": breakdown,
+        "compensation_submitted": submitted_comp,
+        "compensation_expected": correct_comp,
+        "comp_score": comp_score,
+        "over_comp_penalty": over_comp_penalty,
+        "penalty": penalty,
+        "word_count": word_count,
     }
